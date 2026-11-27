@@ -7,13 +7,17 @@ st.set_page_config(page_title="피자 분수 실험실", page_icon="🍕", layou
 
 
 def pizza_svg(parts: int, colored_parts: int, label: str) -> str:
-    center = 130
+    center = 140
     radius = 112
     slices = []
+    toppings = []
 
     for index in range(parts):
-        start_angle = math.radians(-90 + index * 360 / parts)
-        end_angle = math.radians(-90 + (index + 1) * 360 / parts)
+        start_degrees = -90 + index * 360 / parts
+        end_degrees = -90 + (index + 1) * 360 / parts
+        middle_angle = math.radians((start_degrees + end_degrees) / 2)
+        start_angle = math.radians(start_degrees)
+        end_angle = math.radians(end_degrees)
         start_x = center + radius * math.cos(start_angle)
         start_y = center + radius * math.sin(start_angle)
         end_x = center + radius * math.cos(end_angle)
@@ -23,16 +27,36 @@ def pizza_svg(parts: int, colored_parts: int, label: str) -> str:
         slices.append(
             f'<path d="M {center} {center} L {start_x:.3f} {start_y:.3f} '
             f'A {radius} {radius} 0 0 1 {end_x:.3f} {end_y:.3f} Z" '
-            f'fill="{fill}" stroke="#FFFFFF" stroke-width="2.5"/>'
+            f'fill="{fill}" stroke="#FFF8E9" stroke-width="2.5"/>'
+        )
+
+        pepperoni_x = center + 70 * math.cos(middle_angle)
+        pepperoni_y = center + 70 * math.sin(middle_angle)
+        basil_x = center + 43 * math.cos(middle_angle + 0.12)
+        basil_y = center + 43 * math.sin(middle_angle + 0.12)
+        toppings.append(
+            f'<circle cx="{pepperoni_x:.2f}" cy="{pepperoni_y:.2f}" r="6.5" '
+            'fill="#C94F35" stroke="#9E3828" stroke-width="1.5"/>'
+            f'<circle cx="{pepperoni_x - 2:.2f}" cy="{pepperoni_y - 2:.2f}" '
+            'r="1.6" fill="#F5A17B"/>'
+            f'<ellipse cx="{basil_x:.2f}" cy="{basil_y:.2f}" '
+            'rx="3" ry="6" '
+            f'transform="rotate({math.degrees(middle_angle):.1f} '
+            f'{basil_x:.2f} {basil_y:.2f})" fill="#558044"/>'
         )
 
     return (
-        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 260" '
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 280" '
         f'role="img" aria-label="{label}" '
         'style="width:min(100%, 300px);height:auto;display:block;margin:0 auto">'
+        f'<circle cx="{center}" cy="{center}" r="124" '
+        'fill="#D9944F" stroke="#8F4A26" stroke-width="4"/>'
+        f'<circle cx="{center}" cy="{center}" r="117" '
+        'fill="#F4D18A" stroke="#E6B967" stroke-width="2"/>'
         f'{"".join(slices)}'
+        f'{"".join(toppings)}'
         f'<circle cx="{center}" cy="{center}" r="{radius}" '
-        'fill="none" stroke="#71451F" stroke-width="3"/>'
+        'fill="none" stroke="#A9562B" stroke-width="2"/>'
         "</svg>"
     )
 
