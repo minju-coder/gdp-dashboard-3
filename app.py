@@ -76,7 +76,7 @@ def pizza_svg(parts: int, colored_parts: int, label: str) -> str:
         mark_y = center + 120 * math.sin(angle)
         crust_marks.append(
             f'<circle cx="{mark_x:.2f}" cy="{mark_y:.2f}" '
-            f'r="{1.5 if index % 2 == 0 else 1.1}" fill="#9A552C" opacity="0.7"/>'
+            f'r="{1.5 if index % 2 == 0 else 1.1}" fill="#A96C3B" opacity="0.7"/>'
         )
 
     return (
@@ -85,25 +85,25 @@ def pizza_svg(parts: int, colored_parts: int, label: str) -> str:
         'style="width:min(100%, 300px);height:auto;display:block;margin:0 auto">'
         '<defs>'
         f'<radialGradient id="{prefix}-crust" cx="40%" cy="32%" r="75%">'
-        '<stop offset="0%" stop-color="#F6D291"/>'
-        '<stop offset="72%" stop-color="#D89149"/>'
-        '<stop offset="100%" stop-color="#A9572D"/>'
+        '<stop offset="0%" stop-color="#FFE2A5"/>'
+        '<stop offset="72%" stop-color="#E9A85F"/>'
+        '<stop offset="100%" stop-color="#BD7141"/>'
         '</radialGradient>'
         f'<linearGradient id="{prefix}-cheese" x1="15%" y1="0%" x2="85%" y2="100%">'
-        '<stop offset="0%" stop-color="#FFE9A8"/>'
-        '<stop offset="100%" stop-color="#E9B856"/>'
+        '<stop offset="0%" stop-color="#FFF1BC"/>'
+        '<stop offset="100%" stop-color="#F2CC74"/>'
         '</linearGradient>'
         f'<radialGradient id="{prefix}-orange" cx="40%" cy="30%" r="85%">'
-        '<stop offset="0%" stop-color="#F3913B"/>'
-        '<stop offset="100%" stop-color="#D85A1B"/>'
+        '<stop offset="0%" stop-color="#FFB14D"/>'
+        '<stop offset="100%" stop-color="#E97828"/>'
         '</radialGradient>'
         f'<radialGradient id="{prefix}-cream" cx="40%" cy="30%" r="85%">'
-        '<stop offset="0%" stop-color="#FFF8E7"/>'
-        '<stop offset="100%" stop-color="#F0D8A7"/>'
+        '<stop offset="0%" stop-color="#FFFCF1"/>'
+        '<stop offset="100%" stop-color="#F5E7C3"/>'
         '</radialGradient>'
         '</defs>'
         f'<circle cx="{center}" cy="{center}" r="124" '
-        f'fill="url(#{prefix}-crust)" stroke="#8F4A26" stroke-width="3"/>'
+        f'fill="url(#{prefix}-crust)" stroke="#A56031" stroke-width="3"/>'
         f'<circle cx="{center}" cy="{center}" r="117" '
         f'fill="url(#{prefix}-cheese)" stroke="#E6B967" stroke-width="2"/>'
         f'{"".join(crust_marks)}'
@@ -144,11 +144,28 @@ st.write("피자를 나누고 색칠해 보세요. 두 피자에서 색칠한 �
 st.markdown(
     """
     <style>
+    .stApp {
+        background: linear-gradient(135deg, #fffefb 0%, #fff5df 100%);
+        color: #4e3826;
+    }
+    h1, h2, h3 {
+        color: #704b30;
+    }
     .fraction-display {
         text-align: center;
         font-size: 2rem;
         font-weight: 700;
         margin: 0.25rem 0 1rem;
+        color: #a95521;
+    }
+    .stButton > button[kind="primary"] {
+        background-color: #ffc96e;
+        border-color: #e8ab52;
+        color: #5b3a1d;
+    }
+    .stButton > button[kind="primary"]:hover {
+        background-color: #ffbd52;
+        border-color: #dc9840;
     }
     </style>
     """,
