@@ -36,39 +36,40 @@ def pizza_svg(parts: int, colored_parts: int, label: str) -> str:
             f'fill="{fill}" stroke="#FFF8E9" stroke-width="2.5"/>'
         )
 
-        pepperoni_x = center + 70 * math.cos(middle_angle)
-        pepperoni_y = center + 70 * math.sin(middle_angle)
-        basil_x = center + 43 * math.cos(middle_angle + 0.12)
-        basil_y = center + 43 * math.sin(middle_angle + 0.12)
-        if index % 3 == 0:
+        if index < colored_parts:
+            pepperoni_x = center + 70 * math.cos(middle_angle)
+            pepperoni_y = center + 70 * math.sin(middle_angle)
+            basil_x = center + 43 * math.cos(middle_angle + 0.12)
+            basil_y = center + 43 * math.sin(middle_angle + 0.12)
+            if index % 3 == 0:
+                toppings.append(
+                    f'<circle cx="{pepperoni_x:.2f}" cy="{pepperoni_y:.2f}" r="7" '
+                    'fill="#C94F35" stroke="#963622" stroke-width="1.5"/>'
+                    f'<circle cx="{pepperoni_x - 2.2:.2f}" '
+                    f'cy="{pepperoni_y - 2.2:.2f}" r="1.8" fill="#F5A17B"/>'
+                )
+            elif index % 3 == 1:
+                toppings.append(
+                    f'<circle cx="{pepperoni_x:.2f}" cy="{pepperoni_y:.2f}" r="7" '
+                    'fill="#F4D887" stroke="#477342" stroke-width="3"/>'
+                    f'<circle cx="{pepperoni_x:.2f}" cy="{pepperoni_y:.2f}" r="2" '
+                    'fill="#6E984D"/>'
+                )
+            else:
+                toppings.append(
+                    f'<ellipse cx="{pepperoni_x:.2f}" cy="{pepperoni_y:.2f}" '
+                    'rx="6.5" ry="4.5" fill="#46332A" stroke="#2D211B" '
+                    'stroke-width="1"/>'
+                    f'<ellipse cx="{pepperoni_x:.2f}" cy="{pepperoni_y:.2f}" '
+                    'rx="2.5" ry="1.5" fill="#F4D887"/>'
+                )
             toppings.append(
-                f'<circle cx="{pepperoni_x:.2f}" cy="{pepperoni_y:.2f}" r="7" '
-                'fill="#C94F35" stroke="#963622" stroke-width="1.5"/>'
-                f'<circle cx="{pepperoni_x - 2.2:.2f}" '
-                f'cy="{pepperoni_y - 2.2:.2f}" r="1.8" fill="#F5A17B"/>'
+                f'<ellipse cx="{basil_x:.2f}" cy="{basil_y:.2f}" '
+                'rx="3" ry="6" '
+                f'transform="rotate({math.degrees(middle_angle):.1f} '
+                f'{basil_x:.2f} {basil_y:.2f})" fill="#558044" '
+                'stroke="#3E6335" stroke-width="0.8"/>'
             )
-        elif index % 3 == 1:
-            toppings.append(
-                f'<circle cx="{pepperoni_x:.2f}" cy="{pepperoni_y:.2f}" r="7" '
-                'fill="#F4D887" stroke="#477342" stroke-width="3"/>'
-                f'<circle cx="{pepperoni_x:.2f}" cy="{pepperoni_y:.2f}" r="2" '
-                'fill="#6E984D"/>'
-            )
-        else:
-            toppings.append(
-                f'<ellipse cx="{pepperoni_x:.2f}" cy="{pepperoni_y:.2f}" '
-                'rx="6.5" ry="4.5" fill="#46332A" stroke="#2D211B" '
-                'stroke-width="1"/>'
-                f'<ellipse cx="{pepperoni_x:.2f}" cy="{pepperoni_y:.2f}" '
-                'rx="2.5" ry="1.5" fill="#F4D887"/>'
-            )
-        toppings.append(
-            f'<ellipse cx="{basil_x:.2f}" cy="{basil_y:.2f}" '
-            'rx="3" ry="6" '
-            f'transform="rotate({math.degrees(middle_angle):.1f} '
-            f'{basil_x:.2f} {basil_y:.2f})" fill="#558044" '
-            'stroke="#3E6335" stroke-width="0.8"/>'
-        )
 
     for index in range(16):
         angle = math.radians(-78.75 + index * 22.5)
@@ -115,8 +116,14 @@ def pizza_svg(parts: int, colored_parts: int, label: str) -> str:
     )
 
 
-def on_pizza_change(side: str) -> None:
+def clear_conversion_state() -> None:
+    st.session_state["conversion_verified"] = False
+    st.session_state["conversion_feedback"] = None
     st.session_state["comparison_result"] = None
+
+
+def on_pizza_change(side: str) -> None:
+    clear_conversion_state()
     parts_key = f"{side}_parts"
     colored_key = f"{side}_colored"
     if parts_key in st.session_state and colored_key in st.session_state:
@@ -125,17 +132,8 @@ def on_pizza_change(side: str) -> None:
         )
 
 
-def compare_fractions(
-    left_colored: int, left_parts: int, right_colored: int, right_parts: int
-) -> str:
-    left_cross_product = left_colored * right_parts
-    right_cross_product = right_colored * left_parts
-
-    if left_cross_product == right_cross_product:
-        return "두 피자에서 색칠한 양은 같아요"
-    if left_cross_product > right_cross_product:
-        return "왼쪽이 더 많아요"
-    return "오른쪽이 더 많아요"
+def on_conversion_input_change() -> None:
+    clear_conversion_state()
 
 
 st.title("피자를 활용해 분수의 크기 비교하기")
@@ -148,8 +146,53 @@ st.markdown(
         background: linear-gradient(135deg, #fffefb 0%, #fff5df 100%);
         color: #4e3826;
     }
+    [data-testid="stWidgetLabel"] p,
+    .stMarkdown p {
+        color: #3f2a1c !important;
+        font-weight: 600;
+    }
     h1, h2, h3 {
         color: #704b30;
+    }
+    .stTextInput input {
+        color: #352216 !important;
+        background-color: #fffef7 !important;
+        border: 1.5px solid #e6bd70 !important;
+    }
+    .stTextInput input:focus {
+        border-color: #d99539 !important;
+        box-shadow: 0 0 0 0.15rem rgba(255, 201, 110, 0.35) !important;
+    }
+    .stTextInput input::placeholder {
+        color: #665548 !important;
+        opacity: 1;
+    }
+    .fraction-stack {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 5rem;
+        color: #3f2a1c;
+        font-size: 1.65rem;
+        font-weight: 700;
+        line-height: 1.15;
+    }
+    .fraction-stack .numerator {
+        min-width: 2rem;
+        padding: 0 0.4rem 0.12rem;
+        border-bottom: 3px solid #573719;
+        text-align: center;
+    }
+    .fraction-stack .denominator {
+        padding-top: 0.12rem;
+    }
+    .fraction-times {
+        padding-top: 1rem;
+        color: #573719;
+        font-size: 1.6rem;
+        font-weight: 700;
+        text-align: center;
     }
     .fraction-display {
         text-align: center;
@@ -173,6 +216,10 @@ st.markdown(
 )
 
 st.session_state.setdefault("comparison_result", None)
+st.session_state.setdefault("conversion_verified", False)
+st.session_state.setdefault("conversion_feedback", None)
+st.session_state.setdefault("left_multiplier", "")
+st.session_state.setdefault("right_multiplier", "")
 st.session_state.setdefault("left_parts", 2)
 st.session_state.setdefault("left_colored", 1)
 st.session_state.setdefault("right_parts", 8)
@@ -233,10 +280,126 @@ with right_column:
         unsafe_allow_html=True,
     )
 
-if st.button("비교 결과 보기", type="primary", use_container_width=True):
-    st.session_state["comparison_result"] = compare_fractions(
-        left_colored, left_parts, right_colored, right_parts
+st.subheader("통분해 보기")
+left_conversion_column, right_conversion_column = st.columns(2, gap="large")
+
+with left_conversion_column:
+    st.markdown("**왼쪽 분수**")
+    fraction_column, times_column, multiplier_column = st.columns(
+        [1, 0.3, 2], vertical_alignment="center"
     )
+    with fraction_column:
+        st.markdown(
+            f'<div class="fraction-stack"><span class="numerator">{left_colored}'
+            f'</span><span class="denominator">{left_parts}</span></div>',
+            unsafe_allow_html=True,
+        )
+    with times_column:
+        st.markdown('<div class="fraction-times">×</div>', unsafe_allow_html=True)
+    with multiplier_column:
+        left_multiplier_input = st.text_input(
+            "분자·분모에 곱할 수",
+            placeholder="예: 4",
+            key="left_multiplier",
+            on_change=on_conversion_input_change,
+        )
+
+with right_conversion_column:
+    st.markdown("**오른쪽 분수**")
+    fraction_column, times_column, multiplier_column = st.columns(
+        [1, 0.3, 2], vertical_alignment="center"
+    )
+    with fraction_column:
+        st.markdown(
+            f'<div class="fraction-stack"><span class="numerator">{right_colored}'
+            f'</span><span class="denominator">{right_parts}</span></div>',
+            unsafe_allow_html=True,
+        )
+    with times_column:
+        st.markdown('<div class="fraction-times">×</div>', unsafe_allow_html=True)
+    with multiplier_column:
+        right_multiplier_input = st.text_input(
+            "분자·분모에 곱할 수",
+            placeholder="예: 1",
+            key="right_multiplier",
+            on_change=on_conversion_input_change,
+        )
+
+if st.button("통분 확인", type="primary"):
+    st.session_state["conversion_verified"] = False
+    st.session_state["comparison_result"] = None
+    try:
+        left_multiplier = int(left_multiplier_input.strip())
+        right_multiplier = int(right_multiplier_input.strip())
+    except ValueError:
+        left_multiplier = 0
+        right_multiplier = 0
+
+    if left_multiplier <= 0 or right_multiplier <= 0:
+        st.session_state["conversion_feedback"] = (
+            "두 칸에 1 이상의 정수를 입력해 보세요."
+        )
+    elif left_parts * left_multiplier != right_parts * right_multiplier:
+        st.session_state["conversion_feedback"] = (
+            "두 분모의 공배수인지 확인해 보세요."
+        )
+    else:
+        st.session_state["conversion_verified"] = True
+        st.session_state["conversion_feedback"] = None
+
+if st.session_state["conversion_feedback"]:
+    st.info(st.session_state["conversion_feedback"])
+
+if st.session_state["conversion_verified"]:
+    left_multiplier = int(left_multiplier_input.strip())
+    right_multiplier = int(right_multiplier_input.strip())
+    common_denominator = left_parts * left_multiplier
+    converted_left_numerator = left_colored * left_multiplier
+    converted_right_numerator = right_colored * right_multiplier
+    left_equation_column, right_equation_column = st.columns(2)
+    with left_equation_column:
+        st.markdown(
+            f"**왼쪽:** {left_colored}/{left_parts} = "
+            f"({left_colored}×{left_multiplier})/"
+            f"({left_parts}×{left_multiplier}) = "
+            f"{converted_left_numerator}/{common_denominator}"
+        )
+    with right_equation_column:
+        st.markdown(
+            f"**오른쪽:** {right_colored}/{right_parts} = "
+            f"({right_colored}×{right_multiplier})/"
+            f"({right_parts}×{right_multiplier}) = "
+            f"{converted_right_numerator}/{common_denominator}"
+        )
+    st.info("분모가 같아졌어요. 이제 분자를 비교해 보세요.")
+
+if st.button(
+    "비교 결과 보기",
+    type="primary",
+    use_container_width=True,
+    disabled=not st.session_state["conversion_verified"],
+):
+    common_denominator = left_parts * left_multiplier
+    converted_left_numerator = left_colored * left_multiplier
+    converted_right_numerator = right_colored * right_multiplier
+    if converted_left_numerator == converted_right_numerator:
+        st.session_state["comparison_result"] = (
+            f"분모는 둘 다 {common_denominator}입니다. "
+            f"{converted_left_numerator} = {converted_right_numerator}이므로, "
+            "두 피자에서 색칠한 양은 같아요."
+        )
+    elif converted_left_numerator < converted_right_numerator:
+        st.session_state["comparison_result"] = (
+            f"분모는 둘 다 {common_denominator}입니다. "
+            f"{converted_left_numerator} < {converted_right_numerator}이므로, "
+            "오른쪽 피자의 색칠한 양이 더 많아요."
+        )
+    else:
+        st.session_state["comparison_result"] = (
+            f"분모는 둘 다 {common_denominator}입니다. "
+            f"{converted_left_numerator} > {converted_right_numerator}이므로, "
+            "왼쪽 피자의 색칠한 양이 더 많아요."
+        )
 
 if st.session_state["comparison_result"]:
     st.success(st.session_state["comparison_result"])
